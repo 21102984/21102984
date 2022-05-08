@@ -1,0 +1,80 @@
+import csv
+import os
+import networkx as nx
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+#with open("tree.csv") as csvfile:
+#    reader = csv.reader(csvfile)
+#    shadowcolumn = [row[7] for row in reader]
+#    print(shadowcolumn)
+#    shadowvalue = [row[8] for row in reader]
+
+#class treetypes:
+#    def __init__(self, name, uses, height, colourness, radius, shadow, value):
+#        self.name = name
+#        self.uses = uses
+#        self.height = height
+#        self.colourness = colourness
+#        self.radius = radius
+#        self.shadow = shadow
+#        self.value = value
+
+#trees = []
+#with open("tree.csv", encoding = 'utf-8',errors='ignore') as csvfile:
+#    reader = csv.DictReader(csvfile)
+#    for row in reader:
+#        name = row['name']
+#        uses = row['uses']
+#        height = row['average height']
+#        colourness = row['colors']
+#        radius = row['canopy_radius']
+#        shadow = row['shadow']
+#        value = row['economicvalue']
+    #    trees.append(treetypes(name, uses, height, colourness, radius, shadow, value))
+
+
+
+#shadow2 = '38 ', '38 ', '50 ', '0 ', '0 ', '0 ', '0 ', '79 ', '50 ', '38 ', '28 ', '50 ', '13 ', '13 ', '20 ', '20 ', '3 ', '28 ', '50 ', '13 ', '28 ', '20 ', '28 ', '79 ', '28 ', '113 ', '50 ', '13 ', '13 ', '13 ', '28 ', '50 ', '13 ', '13 ', '28 ', '13 ', '13 ', '7 ', '7 ', '38 ', '0 ', '0 ', '0 ', '20 ', '28 ', '0 ', '3 ', '7 ', '7 ', '3 ', '7 ', '7 ', '13 ', '7 ', '0 ', '0 ', '0 ', '0 ', '1 ', '3 ', '3 ', '3 ', '3 ', '0 ', '13 '
+#a = list(shadow2)
+#print(a)
+#with open("tree.csv") as csvfile:
+#    reader = csv.reader(csvfile)
+#    shadowvalue = [row[8] for row in reader]
+#    print(shadowvalue)
+
+#value2 = '365 ', '365 ', '477 ', '0 ', '0 ', '0 ', '0 ', '746 ', '477 ', '365 ', '268 ', '477 ', '119 ', '119 ', '186 ', '186 ', '30 ', '268 ', '477 ', '119 ', '268 ', '186 ', '268 ', '746 ', '268 ', '1074 ', '477 ', '119 ', '119 ', '119 ', '268 ', '477 ', '119 ', '119 ', '268 ', '119 ', '119 ', '67 ', '67 ', '365 ', '0 ', '0 ', '0 ', '186 ', '268 ', '0 ', '30 ', '67 ', '67 ', '30 ', '67 ', '67 ', '119 ', '67 ', '0 ', '0 ', '0 ', '0 ', '7 ', '30 ', '30 ', '30 ', '30 ', '0 ', '119 '
+#b = list(value2)
+items = [[365, 38],  [365, 38], [477,50] ,[0,0], [0,0], [0,0], [0,0], [746,79] , [477,50 ], [365, 38], [268,28] , [477,50], [119,13], [119,13], [186,20] , [186,20] , [30,3], [268,28] , [477,50], [119,13] , [268,28] , [186,20] , [268,28] , [746,79 ], [268,28] , [1074,113], [477,50],[119,13] , [119,13], [119,13] , [268,28],[477, 50] , [119 ,13], [119,13], [268 ,28],[119,13], [119,13] , [67,7] , [67,7], [365,38], [0,0] ,[0,0] , [0,0] , [186 ,20], [268,28], [0,0 ], [30,3], [67,7] ,[67,7] , [30,3], [67,7] ,[67,7], [119,13], [67,7] , [0,0] ,[0,0] , [0,0], [0,0] , [7,1], [30,3],[30,3], [30,3],[30,3], [0,0] , [119,13]]
+
+#items = [a, b]
+hectare = 85
+def area(items, hectare):
+    ecoValues = [[0 for _ in range (hectare+1)] for _ in range(len(items)+1)]
+    for y in range(1, len(items)+1):
+        currentValue = items[y-1][0]
+        currentoccupy = items[y-1][1]
+
+        for x in range(hectare + 1):
+            if x >= currentoccupy:
+                ecoValues[y][x] = max(ecoValues[y-1][x], ecoValues[y-1][x-currentoccupy]+currentValue) #二者选最大(y-1),(x-y)weight+y.value
+            else:
+                ecoValues[y][x] = [y-1][0] # 不放当前物品，对应位置为y-1处的x
+
+    return[ecoValues[-1][-1], gettreechoice(ecoValues, items)]
+
+def gettreechoice(ecoValues, items):
+    sequence = []
+    y = len(ecoValues)-1
+    x = len(ecoValues[0])-1
+    while x>0 and y>0:
+        if ecoValues[y][x] == ecoValues[y-1][x]:
+            y-=1
+        else:
+            sequence.append(items[y-1])
+            x -= items[y-1][1]
+            y -= 1
+    return list(reversed(sequence))
+
+print(area(items, hectare))
